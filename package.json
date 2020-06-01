@@ -6,12 +6,23 @@
     "dev": "bottender dev",
     "lint": "eslint . ",
     "start": "bottender start",
-    "test": "jest"
+    "test": "jest",
+    "babel-start": "npx babel-node ./src/query.js",
+    "build": "npx babel ./src -d ./dist && cp package.json ./dist",
+    "build-run": "npm run build && cd ./dist && node index.js"
   },
   "dependencies": {
-    "bottender": "1.4.6"
+    "bottender": "1.4.6",
+    "moment": "^2.26.0",
+    "mysql2": "^2.1.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/node": "^7.10.1",
+    "@babel/plugin-proposal-optional-chaining": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",

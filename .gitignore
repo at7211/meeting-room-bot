@@ -1,5 +1,8 @@
 # Taken from https://github.com/github/gitignore/blob/master/Node.gitignore
 
+# babel
+dist/
+
 # Logs
 logs
 *.log

@@ -1,85 +1,26 @@
-import mysql from 'mysql2';
-import moment from 'moment';
+import { readList } from './query';
 
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  database: 'rytass_meeting_room',
-  password: '7211',
-});
+async function HandleSlashCommand(context) {
+  // check the action from button or menu
+  console.log(context.event.command);
+  console.log(context.event.text);
 
-const promisePool = pool.promise();
-
-// simple query
-export const readList = (dateTime) => promisePool.query(
-    'SELECT * FROM list WHERE date = ? ORDER BY startTime ASC;',
-    [dateTime]
+  await context.sendText(
+    `I received slash command '${context.event.command}' with arguments: '${context.event.text}'`
   );
-
-export const book = async (
-  booker,
-  rentTime,
-  date,
-  startTime,
-  endTime,
-  userId,
-  cancelledTime
-) => {
-  const connection = await promisePool.getConnection();
-
-  await connection.query('START TRANSACTION;');
-
-  const conflicts = await connection
-    .query(
-      'SELECT * FROM list WHERE date = ? AND endTime > ? AND startTime < ? ORDER BY startTime ASC FOR UPDATE;',
-      [date, startTime, endTime]
-    )
-    .then((result) => result[0]);
-
-  const lastNumberCode = await connection
-    .query(
-      'SELECT numberCode AS lastNumberCode FROM list WHERE date = ? order by numberCode desc limit 1 FOR UPDATE;',
-      [date]
-    )
-    .then(
-      (result) =>
-        (result[0][0] && result[0][0].lastNumberCode) ||
-        `${moment().format('YYMMDD')}0000`
-    );
-
-  const currentNumberCode = String(Number(lastNumberCode) + 1);
-
-  if (conflicts.length) throw new Error('ERROR! booking is conflict');
-
-  await connection.query(
-    'INSERT INTO list (numberCode, booker, rentTime, date, startTime, endTime, userId, cancelledTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
-    [
-      currentNumberCode,
-      booker,
-      rentTime,
-      date,
-      startTime,
-      endTime,
-      userId,
-      cancelledTime,
-    ]
-  );
-
-  await connection.query('COMMIT;');
-  // check
 };
 
-book(
-  'Jay',
-  '2020-05-31 00:04:00',
-  '2020-05-31',
-  '12:30',
-  '12:40',
-  '1',
-)
+async function HandleDefaultEvent(context) {
+  await context.sendText("I didn't receive a slash command");
+}
 
-readList(moment().format('YYYY-MM-DD')).then(x => console.log('x', x[0]));
+module.exports = async function App(context) {
+  // check if an event is from slash command
+  if (context.event.isCommand) {
+    return HandleSlashCommand;
+  }
 
-// module.exports = async function App(context) {
-//   await context.sendText(`I received '${context.event.text}'`);
-// };
+  return HandleDefaultEvent;
+};
+
+readList('2020-05-31').then(x => console.log('list', x[0]));
