@@ -6,10 +6,15 @@
     "dev": "bottender dev",
     "lint": "eslint . ",
     "start": "bottender start",
+    "console": "bottender start -- --console",
     "test": "jest",
     "babel-start": "npx babel-node ./src/query.js",
-    "build": "npx babel ./src -d ./dist && cp package.json ./dist",
-    "build-run": "npm run build && cd ./dist && node index.js"
+    "build": "npx babel ./src -d ./dist/src && npx babel index.js -d ./dist && cp package.json ./dist && cp bottender.config.js ./dist && cp .env ./dist",
+    "docker": "docker build -f Dockerfile -t asia.gcr.io/develop-server/rytass-meetings .",
+    "release": "npm run build && npm run docker && docker push asia.gcr.io/develop-server/rytass-meetings && rm -rf ./dist",
+    "local:dev": "npm run build && cd ./dist && npm run dev",
+    "local:start": "npm run build && cd ./dist && npm run start",
+    "local:console": "npm run build && cd ./dist && npm run console"
   },
   "dependencies": {
     "bottender": "1.4.6",

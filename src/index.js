@@ -5,10 +5,17 @@ async function HandleSlashCommand(context) {
   console.log(context.event.command);
   console.log(context.event.text);
 
+  const d = await readList('2020-05-31');
+
+  await context.sendText(
+    `booker ${d[0][0].booker}`
+  );
+
   await context.sendText(
     `I received slash command '${context.event.command}' with arguments: '${context.event.text}'`
   );
-};
+
+}
 
 async function HandleDefaultEvent(context) {
   await context.sendText("I didn't receive a slash command");
@@ -22,5 +29,3 @@ module.exports = async function App(context) {
 
   return HandleDefaultEvent;
 };
-
-readList('2020-05-31').then(x => console.log('list', x[0]));

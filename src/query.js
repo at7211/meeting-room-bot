@@ -2,12 +2,10 @@ import mysql from 'mysql2';
 import moment from 'moment';
 
 const pool = mysql.createPool({
-  // @rytass host
-  // host: '35.229.192.120',
-  host: 'localhost',
-  user: 'root',
-  database: 'rytass_meeting_room',
-  password: '7211',
+  host: '35.229.192.120',
+  user: 'rytass',
+  database: 'rytass_meetings',
+  password: 'rytass2O15',
 });
 
 const promisePool = pool.promise();
@@ -53,7 +51,13 @@ export const book = async (
 
   const currentNumberCode = String(Number(lastNumberCode) + 1);
 
-  if (conflicts.length) throw new Error('ERROR! booking is conflict');
+  if (conflicts.length) {
+    await connection.query('ROLLBACK;');
+
+    connection.release();
+
+    throw new Error('ERROR! booking is conflict');
+  }
 
   await connection.query(
     'INSERT INTO list (numberCode, booker, rentTime, date, startTime, endTime, userId, cancelledTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
@@ -70,6 +74,8 @@ export const book = async (
   );
 
   await connection.query('COMMIT;');
+
+  connection.release();
   // check
 };
 
