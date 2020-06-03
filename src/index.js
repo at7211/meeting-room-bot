@@ -1,20 +1,29 @@
-import { readList } from './query';
+import { router, route } from 'bottender/router';
+import getDateList from './action/getDateList';
+import bookMeeting from './action/bookMeeting';
+import cancelMeeting from './action/cancelMeeting';
+
+function command(name, Action) {
+  console.log('name', name);
+  return route((context) => context.event.command === name, Action);
+}
+
+async function SayHi(context) {
+  await context.sendText('Hi!');
+}
 
 async function HandleSlashCommand(context) {
   // check the action from button or menu
   console.log(context.event.command);
   console.log(context.event.text);
 
-  const d = await readList('2020-05-31');
-
-  await context.sendText(
-    `booker ${d[0][0].booker}`
-  );
-
-  await context.sendText(
-    `I received slash command '${context.event.command}' with arguments: '${context.event.text}'`
-  );
-
+  // eslint-disable-next-line prettier/prettier
+  return router([
+    command('/test', SayHi),
+    command('/meetings', getDateList),
+    command('/booking', bookMeeting),
+    command('/cancelmeeting', cancelMeeting),
+  ]);
 }
 
 async function HandleDefaultEvent(context) {

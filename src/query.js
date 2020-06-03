@@ -18,9 +18,17 @@ export const readList = (dateTime) => {
   );
 };
 
+export const cancel = (numberCode) => {
+  console.log('CANCEL!')
+  return promisePool.query(
+    'UPDATE list SET cancelledTime = ? WHERE numberCode = ?',
+    [moment().format('YYYY-MM-DD HH:mm:ss'), numberCode]
+  )
+  .catch(e => console.error('e', e));
+};
+
 export const book = async (
   booker,
-  rentTime,
   date,
   startTime,
   endTime,
@@ -45,7 +53,7 @@ export const book = async (
     )
     .then(
       (result) =>
-        (result[0][0] && result[0][0].lastNumberCode) ||
+        result[0]?.[0]?.lastNumberCode ??
         `${moment(date, 'YYYY-MM-DD').format('YYMMDD')}0000`
     );
 
@@ -64,7 +72,7 @@ export const book = async (
     [
       currentNumberCode,
       booker,
-      rentTime,
+      moment().format('YYYY-MM-DD HH:mm:ss'),
       date,
       startTime,
       endTime,
@@ -77,6 +85,8 @@ export const book = async (
 
   connection.release();
   // check
+
+  return currentNumberCode;
 };
 
 /** EXAMPLE */
