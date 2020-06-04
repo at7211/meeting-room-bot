@@ -1,6 +1,8 @@
 import { readList } from '../query';
 import moment from 'moment';
 
+moment.locale('zh-tw');
+
 export default async function getDateList(context) {
   const text = context.event?.text || '';
   const responseList = [];
@@ -41,6 +43,12 @@ export default async function getDateList(context) {
         `}
     });
   });
+
+  if (!responseList.length) {
+    await context.sendText(`${date}尚無預定會議:mb:`);
+
+    return;
+  }
 
   await context.chat.postMessage({
     blocks: responseList,

@@ -1,5 +1,6 @@
 import mysql from 'mysql2';
 import moment from 'moment';
+moment.locale('zh-tw');
 
 const pool = mysql.createPool({
   host: '35.229.192.120',
@@ -19,7 +20,6 @@ export const readList = (dateTime) => {
 };
 
 export const cancel = (numberCode) => {
-  console.log('CANCEL!')
   return promisePool.query(
     'UPDATE list SET cancelledTime = ? WHERE numberCode = ?',
     [moment().format('YYYY-MM-DD HH:mm:ss'), numberCode]
@@ -33,7 +33,7 @@ export const book = async (
   startTime,
   endTime,
   userId,
-  cancelledTime
+  purpose
 ) => {
   const connection = await promisePool.getConnection();
 
@@ -44,7 +44,7 @@ export const book = async (
       'SELECT * FROM list WHERE date = ? AND endTime > ? AND startTime < ? ORDER BY startTime ASC FOR UPDATE;',
       [date, startTime, endTime]
     )
-    .then((result) => result[0]);
+    .then((result) => result[0].filter((meeting) => meeting.cancelledTime));
 
   const lastNumberCode = await connection
     .query(
@@ -68,7 +68,7 @@ export const book = async (
   }
 
   await connection.query(
-    'INSERT INTO list (numberCode, booker, rentTime, date, startTime, endTime, userId, cancelledTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
+    'INSERT INTO list (numberCode, booker, rentTime, date, startTime, endTime, userId, purpose) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
     [
       currentNumberCode,
       booker,
@@ -77,27 +77,13 @@ export const book = async (
       startTime,
       endTime,
       userId,
-      cancelledTime,
+      purpose,
     ]
   );
 
   await connection.query('COMMIT;');
 
   connection.release();
-  // check
 
   return currentNumberCode;
 };
-
-/** EXAMPLE */
-// book(
-//   'Jay',
-//   '2020-05-31 00:04:00',
-//   '2020-05-31',
-//   '14:30',
-//   '16:40',
-//   '1',
-// )
-
-/** EXAMPLE */
-// readList(moment().format('YYYY-MM-DD')).then(x => console.log('x', x[0]));

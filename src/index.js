@@ -4,7 +4,6 @@ import bookMeeting from './action/bookMeeting';
 import cancelMeeting from './action/cancelMeeting';
 
 function command(name, Action) {
-  console.log('name', name);
   return route((context) => context.event.command === name, Action);
 }
 
@@ -21,8 +20,8 @@ async function HandleSlashCommand(context) {
   return router([
     command('/test', SayHi),
     command('/meetings', getDateList),
-    command('/booking', bookMeeting),
-    command('/cancelmeeting', cancelMeeting),
+    command('/book', bookMeeting),
+    command('/cancel', cancelMeeting),
   ]);
 }
 

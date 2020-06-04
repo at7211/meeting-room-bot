@@ -11,4 +11,5 @@ export default async function cancelMeeting(context) {
   }
 
   await cancel(numberCode);
+  await context.sendText('刪除成功:shushing_face:');
 }

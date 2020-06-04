@@ -3,6 +3,8 @@ import checkConflict from '../helper/checkConflict';
 import getUserDisplayName from '../helper/getUserDisplayName';
 import { book } from '../query';
 
+moment.locale('zh-tw');
+
 export default async function bookMeeting(context) {
   const { text } = context.event;
   const {
@@ -54,7 +56,7 @@ export default async function bookMeeting(context) {
   // get userDisplayName
   const userDisplayName = (await getUserDisplayName(userId)) || userName;
 
-  const numberCode = await book(userDisplayName, formatDate, formatStartTime, formatEndTime, purpose);
+  const numberCode = await book(userDisplayName, formatDate, formatStartTime, formatEndTime, userId, purpose);
 
   console.log('numberCode', numberCode);
 
