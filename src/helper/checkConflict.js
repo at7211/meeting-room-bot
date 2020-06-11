@@ -6,7 +6,7 @@ export default async function checkConflict(date, startTime, endTime) {
 
   return list
     ?.filter((date) => !date.cancelledTime)
-    .some(
+    .find(
     (meeting) =>
       moment(meeting.endTime, 'HH:mm').isAfter(moment(startTime, 'HH:mm')) &&
       moment(meeting.startTime, 'HH:mm').isBefore(moment(endTime, 'HH:mm'))

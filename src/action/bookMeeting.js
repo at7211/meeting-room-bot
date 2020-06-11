@@ -11,6 +11,8 @@ export default async function bookMeeting(context) {
     user: { id: userId, name: userName },
   } = context.session;
 
+  console.log('userId', userId);
+
   if (!text) {
     context.sendText('拍謝我沒 get 到，再說一次');
 
@@ -83,6 +85,7 @@ export default async function bookMeeting(context) {
   });
 
   context.chat.postMessage({
+    response_type: 'in_channel',
     blocks: responseList,
   });
 }

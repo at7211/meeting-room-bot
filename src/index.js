@@ -13,8 +13,6 @@ async function SayHi(context) {
 
 async function HandleSlashCommand(context) {
   // check the action from button or menu
-  console.log(context.event.command);
-  console.log(context.event.text);
 
   // eslint-disable-next-line prettier/prettier
   return router([

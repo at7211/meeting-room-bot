@@ -8,19 +8,28 @@ export default async function getDateList(context) {
   const responseList = [];
 
   if (text && !/\d{1,2}\/?\d{1,2}/.test(text)) {
-    await context.sendText('輸入格式不正確:thinking_face:');
+    await context.chat.postMessage({
+      response_type: 'in_channel',
+      text: '輸入格式不正確:thinking_face:',
+    });
 
     return;
   }
 
-  await context.sendText('休旦幾列，撈個資料:bow:');
   const date = text
     ? moment(text, 'MM/DD').format('YYYY-MM-DD')
     : moment().format('YYYY-MM-DD');
 
   const [list] = await readList(date);
 
-  if (!list.length) await context.sendText(`${date}尚無預定會議:mb:`);
+  if (!list.length) {
+    context.chat.postMessage({
+      response_type: 'in_channel',
+      text: `${date}尚無預定會議:mb:`,
+    });
+
+    return;
+  }
 
   list.forEach((meeting) => {
     const {
@@ -51,6 +60,7 @@ export default async function getDateList(context) {
   }
 
   await context.chat.postMessage({
+    response_type: 'in_channel',
     blocks: responseList,
   });
 }
