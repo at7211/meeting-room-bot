@@ -85,7 +85,6 @@ export default async function bookMeeting(context) {
   });
 
   context.chat.postMessage({
-    response_type: 'in_channel',
     blocks: responseList,
   });
 }

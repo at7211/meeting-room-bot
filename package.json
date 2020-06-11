@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bottender dev",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "lint": "eslint . ",
-    "start": "bottender start",
     "console": "bottender start -- --console",
     "test": "jest",
     "babel-start": "npx babel-node ./src/query.js",
-    "build": "npx babel ./src -d ./dist/src && npx babel index.js -d ./dist && cp package.json ./dist && cp bottender.config.js ./dist && cp .env ./dist",
+    "build": "npx babel ./src -d ./dist/src && npx babel index.js -d ./dist && cp package.json ./dist && cp bottender.config.js ./dist && cp .env ./dist && cp server.js ./dist",
     "docker": "docker build -f Dockerfile -t asia.gcr.io/develop-server/rytass-meetings .",
     "release": "npm run build && npm run docker && docker push asia.gcr.io/develop-server/rytass-meetings && rm -rf ./dist",
     "local:dev": "npm run build && cd ./dist && npm run dev",
@@ -17,10 +17,13 @@
     "local:console": "npm run build && cd ./dist && npm run console"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "bottender": "1.4.6",
+    "express": "^4.17.1",
     "moment": "^2.26.0",
     "mysql2": "^2.1.0",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "nodemon": "^2.0.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
