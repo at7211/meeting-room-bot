@@ -31,6 +31,9 @@ app.prepare().then(() => {
       response_type: 'in_channel',
     });
 
+    console.log('req', req.body)
+    console.log('reqUrl', req.url)
+
     return handle(req, res);
   });
 
