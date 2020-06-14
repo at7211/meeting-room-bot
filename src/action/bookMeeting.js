@@ -8,7 +8,13 @@ moment.locale('zh-tw');
 export default async function bookMeeting(context) {
   const { text } = context.event;
   const {
-    user: { id: userId, name: userName },
+    user: {
+      id: userId,
+      name: userName,
+      profile: {
+        email: userEmail,
+      }
+    },
   } = context.session;
 
   console.log('userId', userId);
@@ -19,7 +25,8 @@ export default async function bookMeeting(context) {
     return;
   }
 
-  const meetingTime = text.match(/(\d{1,2}\/?\d{1,2}\s*)?([\d:：]{4,5})[-~]?([\d:：]{4,5})\s*(.*)/);
+  // eslint-disable-next-line no-useless-escape
+  const meetingTime = text.match(/(\d{1,2}[\/-]?\d{1,2}\s*)?([\d:：]{4,5})[-~]?([\d:：]{4,5})\s*(.*)/);
 
   if (!meetingTime) {
     context.sendText('格式不符合:open_mouth:');
