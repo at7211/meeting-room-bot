@@ -9,10 +9,10 @@
     "console": "bottender start -- --console",
     "test": "jest",
     "babel-start": "npx babel-node ./src/query.js",
-    "build": "npx babel ./src -d ./dist/src && npx babel index.js -d ./dist && cp package.json ./dist && cp bottender.config.js ./dist && cp .env ./dist && cp server.js ./dist",
+    "build": "npx babel ./src -d ./dist/src && npx babel index.js -d ./dist && cp package.json ./dist && cp bottender.config.js ./dist && cp .env ./dist && cp server.js ./dist && cp credentials.json ./dist && cp token.json ./dist",
     "docker": "docker build -f Dockerfile -t asia.gcr.io/develop-server/rytass-meetings .",
     "release": "npm run build && npm run docker && docker push asia.gcr.io/develop-server/rytass-meetings && rm -rf ./dist",
-    "local:dev": "npm run build && cd ./dist && npm run dev",
+    "local:dev": "npm run build && cd ./dist && bottender dev",
     "local:start": "npm run build && cd ./dist && npm run start",
     "local:console": "npm run build && cd ./dist && npm run console"
   },

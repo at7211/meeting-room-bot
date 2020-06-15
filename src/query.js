@@ -44,7 +44,7 @@ export const book = async (
       'SELECT * FROM list WHERE date = ? AND endTime > ? AND startTime < ? ORDER BY startTime ASC FOR UPDATE;',
       [date, startTime, endTime]
     )
-    .then((result) => result[0].filter((meeting) => meeting.cancelledTime));
+    .then((result) => result[0].filter((meeting) => !meeting.cancelledTime));
 
   const lastNumberCode = await connection
     .query(

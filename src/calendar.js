@@ -1,3 +1,4 @@
+const moment = require('moment');
 const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
@@ -13,12 +14,12 @@ const SCOPES = [
 const TOKEN_PATH = 'token.json';
 
 // Load client secrets from a local file.
-fs.readFile('credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
+// fs.readFile('credentials.json', (err, content) => {
+//   if (err) return console.log('Error loading client secret file:', err);
 
   // Authorize a client with credentials, then call the Google Calendar API.
-  authorize(JSON.parse(content), listEvents);
-});
+//   authorize(JSON.parse(content), listEvents);
+// });
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -74,7 +75,7 @@ function getAccessToken(oAuth2Client, callback) {
  * Lists the next 10 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth) {
+export function listEvents(auth) {
   const calendar = google.calendar({version: 'v3', auth});
   calendar.events.list({
     calendarId: 'primary',
@@ -97,48 +98,49 @@ function listEvents(auth) {
   });
 }
 
+export function insertEvent(resource) {
+  fs.readFile('credentials.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
 
-var event = {
-  'summary': 'Google I/O 2015',
-  'location': '800 Howard St., San Francisco, CA 94103',
-  'description': 'A chance to hear more about Google\'s developer products.',
-  'start': {
-    'dateTime': '2015-05-28T09:00:00-07:00',
-    'timeZone': 'America/Los_Angeles',
-  },
-  'end': {
-    'dateTime': '2015-05-28T17:00:00-07:00',
-    'timeZone': 'America/Los_Angeles',
-  },
-  'recurrence': [
-    'RRULE:FREQ=DAILY;COUNT=2'
-  ],
-  'attendees': [
-    {'email': 'lpage@example.com'},
-    {'email': 'sbrin@example.com'},
-  ],
-  'reminders': {
-    'useDefault': false,
-    'overrides': [
-      {'method': 'email', 'minutes': 24 * 60},
-      {'method': 'popup', 'minutes': 10},
-    ],
-  },
-};
+    // Authorize a client with credentials, then call the Google Calendar API.
+    authorize(JSON.parse(content), (auth) => {
+      const event = {
+        'summary': resource.summary || '未命名會議',
+        'location': '一樓會議室',
+        'description': resource.description,
+        'start': {
+          'dateTime': moment(resource.startTime, 'YYYY-MM-DD HH:mm').toISOString(),
+          'timeZone': 'Asia/Taipei',
+        },
+        'end': {
+          'dateTime': moment(resource.endTime, 'YYYY-MM-DD HH:mm').toISOString(),
+          'timeZone': 'Asia/Taipei',
+        },
+        'attendees': [resource.userEmail],
+        'reminders': {
+          'useDefault': false,
+          'overrides': [
+            {'method': 'email', 'minutes': 24 * 60},
+            {'method': 'popup', 'minutes': 10},
+          ],
+        },
+      };
 
-export function insertEvent(auth, resource) {
-  const event = resource;
-  const calendar = google.calendar({version: 'v3', auth});
+      const calendar = google.calendar({version: 'v3', auth});
 
-  calendar.events.insert({
-    auth: auth,
-    calendarId: 'primary',
-    resource: event,
-  }, function(err, event) {
-    if (err) {
-      console.log('There was an error contacting the Calendar service: ' + err);
-      return;
-    }
-    console.log('Event created: %s', event.htmlLink);
+      calendar.events.insert({
+        calendarId: 'primary',
+        resource: event,
+      }, function(err, event) {
+        if (err) {
+          console.log('There was an error contacting the Calendar service: ' + err);
+          return;
+        }
+
+        console.log('event', event);
+        console.log('Event created: %s', event.data.htmlLink);
+      });
+    });
   });
+
 }

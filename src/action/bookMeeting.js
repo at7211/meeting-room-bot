@@ -1,7 +1,8 @@
 import moment from 'moment';
 import checkConflict from '../helper/checkConflict';
-import getUserDisplayName from '../helper/getUserDisplayName';
+import getUserInfo from '../helper/getUserInfo';
 import { book } from '../query';
+import { insertEvent } from '../calendar';
 
 moment.locale('zh-tw');
 
@@ -10,14 +11,8 @@ export default async function bookMeeting(context) {
   const {
     user: {
       id: userId,
-      name: userName,
-      profile: {
-        email: userEmail,
-      }
     },
   } = context.session;
-
-  console.log('userId', userId);
 
   if (!text) {
     context.sendText('拍謝我沒 get 到，再說一次');
@@ -52,8 +47,6 @@ export default async function bookMeeting(context) {
     formatEndTime
   );
 
-  console.log('hasConflictInfo', hasConflictInfo);
-
   if (hasConflictInfo) {
     context.sendText(
       `會議時間衝突，請找<@${hasConflictInfo.userId}>喬:face_with_monocle:`
@@ -62,12 +55,19 @@ export default async function bookMeeting(context) {
     return;
   }
 
-  // get userDisplayName
-  const userDisplayName = (await getUserDisplayName(userId)) || userName;
+  // get userInfo
+  const userInfo = await getUserInfo(userId);
 
-  const numberCode = await book(userDisplayName, formatDate, formatStartTime, formatEndTime, userId, purpose);
+  const numberCode = await book(userInfo.name, formatDate, formatStartTime, formatEndTime, userId, purpose);
+  const event = {
+    summary: purpose,
+    description: '',
+    startTime: `${formatDate} ${formatStartTime}`,
+    endTime: `${formatDate} ${formatEndTime}`,
+    userEmail: userInfo.email,
+  }
 
-  console.log('numberCode', numberCode);
+  await insertEvent(event)
 
   const responseList = [{
     type: "section",
@@ -82,7 +82,7 @@ export default async function bookMeeting(context) {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `*${purpose || '未命名會議'}*\n${formatDate} ${formatStartTime}-${formatEndTime}\n一樓會議室\n登記人：${userDisplayName}\n會議編號：${numberCode}`
+      text: `*${purpose || '未命名會議'}*\n${formatDate} ${formatStartTime}-${formatEndTime}\n一樓會議室\n登記人：${userInfo.name}\n會議編號：${numberCode}`
     },
     accessory: {
       type: 'image',

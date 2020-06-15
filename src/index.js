@@ -12,9 +12,6 @@ async function SayHi(context) {
 }
 
 async function HandleSlashCommand(context) {
-  // check the action from button or menu
-
-  // eslint-disable-next-line prettier/prettier
   return router([
     command('/test', SayHi),
     command('/meetings', getDateList),
@@ -28,7 +25,6 @@ async function HandleDefaultEvent(context) {
 }
 
 module.exports = async function App(context) {
-  // check if an event is from slash command
   if (context.event.isCommand) {
     return HandleSlashCommand;
   }
