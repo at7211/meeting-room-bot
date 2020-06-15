@@ -58,7 +58,6 @@ export default async function bookMeeting(context) {
   // get userInfo
   const userInfo = await getUserInfo(userId);
 
-  const numberCode = await book(userInfo.name, formatDate, formatStartTime, formatEndTime, userId, purpose);
   const event = {
     summary: purpose,
     description: '',
@@ -67,7 +66,12 @@ export default async function bookMeeting(context) {
     userEmail: userInfo.email,
   }
 
-  await insertEvent(event)
+  // get google calendar event id
+  const eventId = await insertEvent(event) ?? '';
+
+  console.log('eventId', eventId);
+
+  const numberCode = await book(userInfo.name, formatDate, formatStartTime, formatEndTime, userId, purpose, eventId);
 
   const responseList = [{
     type: "section",

@@ -14,7 +14,9 @@
     "release": "npm run build && npm run docker && docker push asia.gcr.io/develop-server/rytass-meetings && rm -rf ./dist",
     "local:dev": "npm run build && cd ./dist && bottender dev",
     "local:start": "npm run build && cd ./dist && npm run start",
-    "local:console": "npm run build && cd ./dist && npm run console"
+    "local:console": "npm run build && cd ./dist && npm run console",
+    "test:token": "npm run build && cd ./dist/ && rm token.json && cd ./src && node calendar.js",
+    "test:calendar": "npm run build && cd ./dist/ && cd ./src && node calendar.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

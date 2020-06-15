@@ -1,5 +1,7 @@
 import mysql from 'mysql2';
 import moment from 'moment';
+import { deleteEvent } from './calendar';
+
 moment.locale('zh-tw');
 
 const pool = mysql.createPool({
@@ -20,10 +22,21 @@ export const readList = (dateTime) => {
 };
 
 export const cancel = (numberCode) => {
+  const eventId = promisePool.query(
+    'SELECT eventId FROM list WHERE numberCode = ?;',
+    [numberCode]
+  )
+  .then((result) => {
+    console.log('result', result);
+    result[0][0].eventId
+  })
+  .catch(e => console.error('e', e));
+
   return promisePool.query(
     'UPDATE list SET cancelledTime = ? WHERE numberCode = ?',
     [moment().format('YYYY-MM-DD HH:mm:ss'), numberCode]
   )
+  .then(() => deleteEvent(eventId))
   .catch(e => console.error('e', e));
 };
 
@@ -33,7 +46,8 @@ export const book = async (
   startTime,
   endTime,
   userId,
-  purpose
+  purpose,
+  eventId,
 ) => {
   const connection = await promisePool.getConnection();
 
@@ -68,7 +82,7 @@ export const book = async (
   }
 
   await connection.query(
-    'INSERT INTO list (numberCode, booker, rentTime, date, startTime, endTime, userId, purpose) VALUES (?, ?, ?, ?, ?, ?, ?, ?);',
+    'INSERT INTO list (numberCode, booker, rentTime, date, startTime, endTime, userId, purpose, eventId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);',
     [
       currentNumberCode,
       booker,
@@ -78,6 +92,7 @@ export const book = async (
       endTime,
       userId,
       purpose,
+      eventId,
     ]
   );
 

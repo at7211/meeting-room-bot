@@ -3,6 +3,7 @@ FROM node:12-slim
 ENV HOME /root
 ENV PORT 80
 ENV NODE_ENV production
+ENV TZ Asia/Taipei
 
 RUN mkdir -p /www/rytass_meeting_room
 ADD dist/ /var/www/rytass_meeting_room

@@ -1,7 +1,9 @@
 const moment = require('moment');
 const fs = require('fs');
+const path = require('path');
 const readline = require('readline');
 const { google } = require('googleapis');
+const qs = require('querystring');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
@@ -11,15 +13,16 @@ const SCOPES = [
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = path.resolve(__dirname, '../', 'token.json');
+const CREDENTIAL_PATH = path.resolve(__dirname, '../', 'credentials.json')
 
 // Load client secrets from a local file.
-// fs.readFile('credentials.json', (err, content) => {
-//   if (err) return console.log('Error loading client secret file:', err);
+fs.readFile(CREDENTIAL_PATH, (err, content) => {
+  if (err) return console.log('Error loading client secret file:', err);
 
   // Authorize a client with credentials, then call the Google Calendar API.
-//   authorize(JSON.parse(content), listEvents);
-// });
+  authorize(JSON.parse(content), listEvents);
+});
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -35,7 +38,9 @@ function authorize(credentials, callback) {
   // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
     if (err) return getAccessToken(oAuth2Client, callback);
+    console.log('JSON.parse(token)', JSON.parse(token));
     oAuth2Client.setCredentials(JSON.parse(token));
+    console.log('oAuth2Client', oAuth2Client)
     callback(oAuth2Client);
   });
 }
@@ -50,6 +55,7 @@ function getAccessToken(oAuth2Client, callback) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
+    prompt: 'consent',
   });
   console.log('Authorize this app by visiting this url:', authUrl);
   const rl = readline.createInterface({
@@ -78,7 +84,7 @@ function getAccessToken(oAuth2Client, callback) {
 export function listEvents(auth) {
   const calendar = google.calendar({version: 'v3', auth});
   calendar.events.list({
-    calendarId: 'primary',
+    calendarId: 'rytass.com_cvj20q5g4u6iiri6126eka0aj0@group.calendar.google.com',
     timeMin: (new Date()).toISOString(),
     maxResults: 10,
     singleEvents: true,
@@ -98,23 +104,23 @@ export function listEvents(auth) {
   });
 }
 
-export function insertEvent(resource) {
-  fs.readFile('credentials.json', (err, content) => {
+export async function insertEvent(resource) {
+  let eventId = '';
+
+  await fs.readFile(CREDENTIAL_PATH, async (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
 
     // Authorize a client with credentials, then call the Google Calendar API.
-    authorize(JSON.parse(content), (auth) => {
+    await authorize(JSON.parse(content), async (auth) => {
       const event = {
         'summary': resource.summary || '未命名會議',
         'location': '一樓會議室',
         'description': resource.description,
         'start': {
           'dateTime': moment(resource.startTime, 'YYYY-MM-DD HH:mm').toISOString(),
-          'timeZone': 'Asia/Taipei',
         },
         'end': {
           'dateTime': moment(resource.endTime, 'YYYY-MM-DD HH:mm').toISOString(),
-          'timeZone': 'Asia/Taipei',
         },
         'attendees': [resource.userEmail],
         'reminders': {
@@ -128,8 +134,8 @@ export function insertEvent(resource) {
 
       const calendar = google.calendar({version: 'v3', auth});
 
-      calendar.events.insert({
-        calendarId: 'primary',
+      await calendar.events.insert({
+        calendarId: 'rytass.com_cvj20q5g4u6iiri6126eka0aj0@group.calendar.google.com',
         resource: event,
       }, function(err, event) {
         if (err) {
@@ -139,8 +145,35 @@ export function insertEvent(resource) {
 
         console.log('event', event);
         console.log('Event created: %s', event.data.htmlLink);
+        eventId = event.data.htmlLink;
       });
     });
   });
 
+  return qs.parse(eventId.replace(/^\?/, ''));
+}
+
+export function deleteEvent(eventId) {
+  fs.readFile(CREDENTIAL_PATH, (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+
+    console.log('eventId', eventId);
+
+    // Authorize a client with credentials, then call the Google Calendar API.
+    authorize(JSON.parse(content), (auth) => {
+      const calendar = google.calendar({version: 'v3', auth});
+
+      calendar.events.delete({
+        calendarId: 'rytass.com_cvj20q5g4u6iiri6126eka0aj0@group.calendar.google.com',
+        eventId: eventId,
+      }, function(err, event) {
+        if (err) {
+          console.log('There was an error contacting the Calendar service: ' + err);
+          return;
+        }
+
+        console.log('event', event);
+      });
+    });
+  });
 }
