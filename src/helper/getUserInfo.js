@@ -9,7 +9,7 @@ export default function getUserInfo(userId) {
     })
     .then(
       (response) => {
-        console.log('response', response)
+        // console.log('response', response)
         return {
             name: response.user.profile.display_name ?? response.user.profile.real_name ?? '',
             email: response.user.profile.email ?? '',

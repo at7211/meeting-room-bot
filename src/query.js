@@ -28,7 +28,7 @@ export const cancel = (numberCode) => {
   )
   .then((result) => {
     console.log('result', result);
-    result[0][0].eventId
+    return result[0][0].eventId
   })
   .catch(e => console.error('e', e));
 

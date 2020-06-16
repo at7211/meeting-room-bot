@@ -5,52 +5,33 @@ const readline = require('readline');
 const { google } = require('googleapis');
 const qs = require('querystring');
 
-// If modifying these scopes, delete token.json.
 const SCOPES = [
   'https://www.googleapis.com/auth/calendar.readonly',
   'https://www.googleapis.com/auth/calendar.events',
 ];
-// The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
-// time.
+
 const TOKEN_PATH = path.resolve(__dirname, '../', 'token.json');
 const CREDENTIAL_PATH = path.resolve(__dirname, '../', 'credentials.json')
 
-// Load client secrets from a local file.
-fs.readFile(CREDENTIAL_PATH, (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
+// fs.readFile(CREDENTIAL_PATH, (err, content) => {
+//   if (err) return console.log('Error loading client secret file:', err);
 
-  // Authorize a client with credentials, then call the Google Calendar API.
-  authorize(JSON.parse(content), listEvents);
-});
+//   authorize(JSON.parse(content), listEvents);
+// });
 
-/**
- * Create an OAuth2 client with the given credentials, and then execute the
- * given callback function.
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
- */
 function authorize(credentials, callback) {
   const {client_secret, client_id, redirect_uris} = credentials.web;
   const oAuth2Client = new google.auth.OAuth2(
       client_id, client_secret, redirect_uris[0]);
 
-  // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
     if (err) return getAccessToken(oAuth2Client, callback);
-    console.log('JSON.parse(token)', JSON.parse(token));
+
     oAuth2Client.setCredentials(JSON.parse(token));
-    console.log('oAuth2Client', oAuth2Client)
     callback(oAuth2Client);
   });
 }
 
-/**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
- * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback for the authorized client.
- */
 function getAccessToken(oAuth2Client, callback) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -67,7 +48,7 @@ function getAccessToken(oAuth2Client, callback) {
     oAuth2Client.getToken(code, (err, token) => {
       if (err) return console.error('Error retrieving access token', err);
       oAuth2Client.setCredentials(token);
-      // Store the token to disk for later program executions
+
       fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
         if (err) return console.error(err);
         console.log('Token stored to', TOKEN_PATH);
@@ -77,10 +58,6 @@ function getAccessToken(oAuth2Client, callback) {
   });
 }
 
-/**
- * Lists the next 10 events on the user's primary calendar.
- * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
- */
 export function listEvents(auth) {
   const calendar = google.calendar({version: 'v3', auth});
   calendar.events.list({
@@ -110,8 +87,10 @@ export async function insertEvent(resource) {
   await fs.readFile(CREDENTIAL_PATH, async (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
 
-    // Authorize a client with credentials, then call the Google Calendar API.
+    console.log('1')
+
     await authorize(JSON.parse(content), async (auth) => {
+      console.log('2')
       const event = {
         'summary': resource.summary || '未命名會議',
         'location': '一樓會議室',
@@ -132,12 +111,12 @@ export async function insertEvent(resource) {
         },
       };
 
-      const calendar = google.calendar({version: 'v3', auth});
+      const calendar = await google.calendar({version: 'v3', auth});
 
       await calendar.events.insert({
         calendarId: 'rytass.com_cvj20q5g4u6iiri6126eka0aj0@group.calendar.google.com',
         resource: event,
-      }, function(err, event) {
+      }, async function(err, event) {
         if (err) {
           console.log('There was an error contacting the Calendar service: ' + err);
           return;
@@ -145,7 +124,7 @@ export async function insertEvent(resource) {
 
         console.log('event', event);
         console.log('Event created: %s', event.data.htmlLink);
-        eventId = event.data.htmlLink;
+        eventId = await event.data.htmlLink;
       });
     });
   });
@@ -159,7 +138,6 @@ export function deleteEvent(eventId) {
 
     console.log('eventId', eventId);
 
-    // Authorize a client with credentials, then call the Google Calendar API.
     authorize(JSON.parse(content), (auth) => {
       const calendar = google.calendar({version: 'v3', auth});
 
