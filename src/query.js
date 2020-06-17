@@ -21,8 +21,8 @@ export const readList = (dateTime) => {
   );
 };
 
-export const cancel = (numberCode) => {
-  const eventId = promisePool.query(
+export const cancel = async (numberCode) => {
+  const eventId = await promisePool.query(
     'SELECT eventId FROM list WHERE numberCode = ?;',
     [numberCode]
   )

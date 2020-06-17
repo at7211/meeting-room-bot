@@ -8,7 +8,7 @@
     "lint": "eslint . ",
     "console": "bottender start -- --console",
     "test": "jest",
-    "babel-start": "npx babel-node ./src/query.js",
+    "babel-start": "npx babel-node index.js",
     "build": "npx babel ./src -d ./dist/src && npx babel index.js -d ./dist && cp package.json ./dist && cp bottender.config.js ./dist && cp .env ./dist && cp server.js ./dist && cp credentials.json ./dist && cp token.json ./dist",
     "docker": "docker build -f Dockerfile -t asia.gcr.io/develop-server/rytass-meetings .",
     "release": "npm run build && npm run docker && docker push asia.gcr.io/develop-server/rytass-meetings && rm -rf ./dist",

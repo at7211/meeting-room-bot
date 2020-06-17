@@ -11,7 +11,7 @@ async function SayHi(context) {
   await context.sendText('Hi!');
 }
 
-async function HandleSlashCommand(context) {
+async function HandleSlashCommand() {
   return router([
     command('/test', SayHi),
     command('/meetings', getDateList),

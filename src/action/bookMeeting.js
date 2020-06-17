@@ -66,13 +66,6 @@ export default async function bookMeeting(context) {
     userEmail: userInfo.email,
   }
 
-  // get google calendar event id
-  const eventId = await insertEvent(event) ?? '';
-
-  console.log('eventId', eventId);
-
-  const numberCode = await book(userInfo.name, formatDate, formatStartTime, formatEndTime, userId, purpose, eventId);
-
   const responseList = [{
     type: "section",
     text: {
@@ -82,20 +75,27 @@ export default async function bookMeeting(context) {
     }
    }];
 
-  responseList.push({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: `*${purpose || '未命名會議'}*\n${formatDate} ${formatStartTime}-${formatEndTime}\n一樓會議室\n登記人：${userInfo.name}\n會議編號：${numberCode}`
-    },
-    accessory: {
-      type: 'image',
-      image_url: 'https://api.slack.com/img/blocks/bkb_template_images/notifications.png',
-      alt_text: 'calendar thumbnail',
-    },
-  });
+  // get google calendar event id
+  await insertEvent(event).then(eventId => {
+    book(userInfo.name, formatDate, formatStartTime, formatEndTime, userId, purpose, eventId)
+      .then(numberCode => {
+        console.log('numberCode', numberCode)
+        responseList.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*${purpose || '未命名會議'}*\n${formatDate} ${formatStartTime}-${formatEndTime}\n一樓會議室\n登記人：${userInfo.name}\n會議編號：${numberCode}`
+          },
+          accessory: {
+            type: 'image',
+            image_url: 'https://api.slack.com/img/blocks/bkb_template_images/notifications.png',
+            alt_text: 'calendar thumbnail',
+          },
+        });
 
-  context.chat.postMessage({
-    blocks: responseList,
+        context.chat.postMessage({
+          blocks: responseList,
+        });
+      });
   });
 }
