@@ -20,7 +20,7 @@ export default async function getDateList(context) {
   const [list] = await readList(date);
 
   if (!list.length) {
-    await context.sendText(`${date}尚無預定會議:mb:`);
+    await context.sendText(`${date} 尚無預定會議:mb:`);
 
     return;
   }
@@ -51,7 +51,7 @@ export default async function getDateList(context) {
   });
 
   if (!responseList.length) {
-    await context.sendText(`${date}尚無預定會議:mb:`);
+    await context.sendText(`${date} 尚無預定會議:mb:`);
 
     return;
   }

@@ -11,8 +11,8 @@ export default function getUserInfo(userId) {
       (response) => {
         // console.log('response', response)
         return {
-            name: response.user.profile.display_name ?? response.user.profile.real_name ?? '',
-            email: response.user.profile.email ?? '',
+          name: response.user.profile.display_name ?? response.user.profile.real_name ?? '',
+          email: response.user.profile.email ?? '',
         }
       }
     )

@@ -94,6 +94,7 @@ export default async function bookMeeting(context) {
         });
 
         context.chat.postMessage({
+          text: `*${purpose || '未命名會議'}*\n${formatDate} ${formatStartTime}-${formatEndTime}\n一樓會議室\n登記人：${userInfo.name}\n會議編號：${numberCode}`,
           blocks: responseList,
         });
       });

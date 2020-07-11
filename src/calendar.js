@@ -39,6 +39,8 @@ export async function insertEvent(resource) {
     },
   };
 
+  console.log('event', event);
+
   const content = fs.readFileSync(CREDENTIAL_PATH);
 
   const auth = authorize(JSON.parse(content));
