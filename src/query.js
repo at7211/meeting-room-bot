@@ -5,10 +5,10 @@ import { deleteEvent } from './calendar';
 moment.locale('zh-tw');
 
 const pool = mysql.createPool({
-  host: '35.229.192.120',
+  host: process.env.DATABASE_PASSWORD,
   user: 'rytass',
   database: 'rytass_meetings',
-  password: 'rytass2O15',
+  password: process.env.DATABASE_PASSWORD,
 });
 
 const promisePool = pool.promise();
