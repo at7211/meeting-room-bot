@@ -10,6 +10,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+token.json
+crenentials.json
+
+
 # Runtime data
 pids
 *.pid
@@ -47,6 +51,8 @@ jspm_packages/
 # TypeScript v1 declaration files
 typings/
 
+src/
+
 # Optional npm cache directory
 .npm
 
@@ -67,5 +73,4 @@ typings/
 
 .vercel
 
-token.json
-crenentials.json
+.DS_Store
